@@ -288,7 +288,7 @@ function install_devs() {
     sudo -H $PIP install pytest ipdb coverage flake8 flake8-bugbear pylint pytype black
     cd "$TOP_DIR/$COMNETSEMU_SRC_DIR/doc" || exit
     echo "- Install packages to build HTML documentation. Not Supported "
-    #sudo -H $PIP install -r ./requirements.txt
+    sudo -H $PIP install -r ./requirements.txt
 }
 
 function install_bcc() {
