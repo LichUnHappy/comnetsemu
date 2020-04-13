@@ -208,8 +208,8 @@ function install_docker() {
 		sudo systemctl status docker
 	fi
 	
-	echo "install Docker_Compose"
-	install_docker_compose
+		echo "install Docker_Compose"
+		install_docker_compose
 }
 
 function upgrade_docker() {
@@ -217,11 +217,13 @@ function upgrade_docker() {
     $install docker-ce
 }
 
-function install_docker_compose{
-	curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-	chmod +x /usr/local/bin/docker-compose
-	echo "docker-compose --version"
+function install_docker_compose(){
+	echo "install Docker_Compose"
+	#install_docker_compose
+	sudo curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+	sudo chmod +x /usr/local/bin/docker-compose
 	docker-compose --version	
+	
 	}
 
 function install_mininet_with_deps() {
@@ -238,13 +240,13 @@ function install_mininet_with_deps() {
     cd mininet || exit
     git checkout $MININET_BRANCH
     git checkout $MININET_VER
-    
+    echo "Mininet Version is : "
     if [[ $(lsb_release -rs) == "20.04" ]]; then # replace 20.04 by the number of release you want
        echo "cgroups-bin is deprected and the new package is cgroups-tools in mininet install script"
        cd util
-       sed -i 's/cgroups-bin/cgroups-tools/g' install.sh
+       sed -i 's/cgroup-bin/cgroup-tools/g' install.sh
 	else
-       echo "cgroups-bin still supported in Ubuntu 19.10 and below "
+       echo "cgroup-bin still supported in Ubuntu 18.04 and below "
        cd util || exit
 	fi
     PYTHON=python3 ./install.sh -nfvw03
