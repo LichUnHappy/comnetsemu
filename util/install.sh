@@ -201,7 +201,14 @@ function install_mininet_with_deps() {
     cd mininet || exit
     git checkout $MININET_BRANCH
     git checkout $MININET_VER
-    cd util || exit
+    if [[ $(lsb_release -rs) == "20.04" ]]; then # replace 20.04 by the number of release you want
+       echo "cgroups-bin is deprected and the new package is cgroups-tools in mininet install script"
+       cd util
+       sed -i 's/cgroup-bin/cgroup-tools/g' install.sh
+	else
+       echo "cgroup-bin still supported in Ubuntu 18.04 and below "
+       cd util || exit
+	fi
     PYTHON=python3 ./install.sh -nfvw03
 }
 
