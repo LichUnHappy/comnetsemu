@@ -162,42 +162,67 @@ function install_kernel_modules() {
 }
 
 function install_docker() {
-    # $remove docker docker.io
-    $remove docker docker-engine docker.io
-    # $install apt-transport-https ca-certificates curl software-properties-common python3-pip gnupg2
-    $install apt-transport-https ca-certificates curl software-properties-common gnupg-agent python3-pip
+    if [[ $(lsb_release -rs) == "18.04" ]]; then # replace 18.04 by the number of release you want
+	
+		# $remove docker docker.io
+		$remove docker docker-engine docker.io
+		# $install apt-transport-https ca-certificates curl software-properties-common python3-pip gnupg2
+		$install apt-transport-https ca-certificates curl software-properties-common gnupg-agent python3-pip
 
 
-    if [ "$DIST" = "Ubuntu" ] || [ "$DIST" = "Debian" ]; then
-        curl -fsSL https://download.docker.com/linux/"${DIST,,}"/gpg | sudo apt-key add -
-        if [[ $(sudo apt-key fingerprint 9DC858229FC7DD38854AE2D88D81803C0EBFCD88) ]]; then
-            echo "The fingerprint is correct"
-        else
-            echo "The fingerprint is wrong!"
-            exit 1
-        fi
-        $addrepo \
-            "deb [arch=amd64] https://download.docker.com/linux/${DIST,,}\
-            $(lsb_release -cs) \
-            stable"
+		if [ "$DIST" = "Ubuntu" ] || [ "$DIST" = "Debian" ]; then
+			curl -fsSL https://download.docker.com/linux/"${DIST,,}"/gpg | sudo apt-key add -
+			if [[ $(sudo apt-key fingerprint 9DC858229FC7DD38854AE2D88D81803C0EBFCD88) ]]; then
+				echo "The fingerprint is correct"
+			else
+				echo "The fingerprint is wrong!"
+				exit 1
+			fi
+			$addrepo \
+				"deb [arch=amd64] https://download.docker.com/linux/${DIST,,}\
+				$(lsb_release -cs) \
+				stable"
 
-    fi
+		fi
 
-    $update update
-    $install docker-ce
+		$update update
+		$install docker-ce
 
-    # Enable docker experimental features
-    sudo mkdir -p /etc/docker
-    echo "{\"experimental\": true}" | sudo tee --append /etc/docker/daemon.json
-    if pidof systemd; then
-        sudo systemctl restart docker
-    fi
+		# Enable docker experimental features
+		sudo mkdir -p /etc/docker
+		echo "{\"experimental\": true}" | sudo tee --append /etc/docker/daemon.json
+
+		
+    else
+		echo "Installing Docker from remote repository"
+		curl -fsSL https://get.docker.com -o get-docker.sh
+		sudo sh get-docker.sh
+		sudo usermod -aG docker ${USER}
+		echo "Check Docker version : "
+		docker --version
+	fi
+	if pidof systemd; then
+		sudo systemctl restart docker
+		#sudo systemctl start docker
+		sudo systemctl enable docker
+		sudo systemctl status docker
+	fi
+	
+	echo "install Docker_Compose"
+	install_docker_compose
 }
 
 function upgrade_docker() {
     $update update
     $install docker-ce
 }
+
+function install_docker_compose{
+	sudo curl -L https://github.com/docker/compose/releases/download/1.25.5/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+	sudo chmod +x /usr/local/bin/docker-compose
+	echo "docker-compose --version"
+	docker-compose --version	
+	}
 
 function install_mininet_with_deps() {
     local mininet_dir="$EXTERN_DEP_DIR/mininet-$MININET_VER"
