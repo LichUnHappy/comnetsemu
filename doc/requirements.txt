@@ -1,6 +1,6 @@
 # TODO 
-#mininet
-#comnetsemu
+mininet
+comnetsemu
 sphinx_rtd_theme
 sphinxcontrib-apidoc
 recommonmark
